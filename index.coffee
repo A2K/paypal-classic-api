@@ -4,6 +4,7 @@ _ = require 'underscore'
 util = require 'util'
 
 API_URL = 'https://api-3t.sandbox.paypal.com/nvp'
+API_VERSION = 94
 
 class PayPal
 
@@ -39,7 +40,7 @@ class PayPal
       PWD: @password,
       SIGNATURE: @signature,
       METHOD: method,
-      VERSION: 94,
+      VERSION: API_VERSION,
     }
 
     for k, v of parameters
@@ -52,8 +53,4 @@ class PayPal
       callback? null, processResponse body
 
 module.exports = PayPal
-
-
-#(new exports(USERNAME, PASSWORD, SIGNATURE)).call 'TransactionSearch', { StartDate: START_DATE }, (error, transactions) ->
-  #console.log error, transactions
 
