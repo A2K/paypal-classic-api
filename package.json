@@ -1,0 +1,23 @@
+{
+    "name": "paypal-classic-api",
+    "version": "1.0.0",
+    "description": "Paypal Classic API bindings",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/A2K/paypal-classic-api.git"
+    },
+    "main": "index.js",
+    "scripts": {
+        "prepublish": "coffee -c .",
+        "build": "coffee -c .",
+        "test": "echo \"There are no tests.\" && exit 0"
+    },
+    "author": "A2K <a2k0001@gmail.com>",
+    "license": "GPL-3.0+",
+    "dependencies": {
+        "querystring": "^0.2.0",
+        "request": "^2.53.0",
+        "underscore": "^1.8.2"
+    }
+}
+
