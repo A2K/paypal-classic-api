@@ -20,7 +20,7 @@ Methods names and arguments information can be found at https://developer.paypal
 ```javascript
 PayPal = require('paypal-classic-api');
 
-var credentials = { username: tok261_biz_api.abc.com,
+var credentials = { username: 'tok261_biz_api.abc.com',
                     password: '1244612379',
                     signature: 'lkfg9groingghb4uw5' };
                     
