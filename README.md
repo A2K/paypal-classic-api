@@ -10,7 +10,9 @@ npm install paypal-classic-api --save
 ### Usage
 **class PayPal(options)**
 
-`options` object fields: `username`, `password` and `signature` from PayPal developer account.
+`options` object mandatory fields: `username`, `password` and `signature` from PayPal developer account.
+
+`options`.`live` is an optional field which enables "live" mode. Default value is `false`, so the module will operate in sandbox mode if this field is not explicitly set to `true`.
 
 *method* **call(methodName, methodArguments, callback)**
 
