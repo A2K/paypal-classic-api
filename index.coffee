@@ -23,25 +23,40 @@ class PayPal
 
       return (callback? 'invalid server response') if not data?
 
+      commonParams = (k for k of data).filter (k) -> /^[A-Z]+$/.test(k)
+
+      rx = /^L_([A-Z]+)(\d+)$/
+
       params = ((k for k of data).map (key) ->
-        parts = /L_([A-Z]+)(\d+)/.exec(key)
-        return if parts then [parts[1], parseInt(parts[2]), key] else null)
-          .filter (p) -> p?
+        return if not rx.test(key)
+        parts = rx.exec(key)
+        return if parts then [parts[1], parseInt(parts[2]), key] else null
+      ).filter (p) -> p?
+      params = params.filter (x) -> x?
 
-      ids = (_.uniq _.flatten (p[1] for p in params)).filter (p) -> p?
+      ids = (p[1] for p in params)
+      ids = _.uniq _.flatten ids
 
-      ids.map (id) ->
+      extractValue = (key, value) ->
+        if not isNaN(value)
+          value = parseFloat(value)
+        if key == 'TIMESTAMP' or /.+DATE$/.test key
+          date = new Date(value)
+          value = date if date and not isNaN date.getYear()
+        return value
+
+      res = ids.map (id) ->
         obj = {}
         for param in params
           if id == param[1]
-            value = data[param[2]]
-            if not isNaN(value)
-              value = parseFloat(value)
-            if param[0] == 'TIMESTAMP' or /.+DATE/.test param[0]
-              date = new Date(value)
-              value = date if date and not isNaN date.getYear()
-            obj[param[0]] = value
+            obj[param[0]] = extractValue param[0], data[param[2]]
         return obj
+
+      for t in res
+        for key in commonParams
+          t[key] = extractValue key, data[key]
+
+      return res
 
     args = {
       USER: @username,
