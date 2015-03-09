@@ -29,11 +29,27 @@
     PayPal.prototype.call = function(method, parameters, callback) {
       var args, k, processResponse, v;
       processResponse = function(text) {
-        var data, ids, k, p, params;
+        var data, extractValue, ids, k, key, p, params, response, rx, _i, _len, _ref;
         data = querystring.decode(text);
         if (data == null) {
           return typeof callback === "function" ? callback('invalid server response') : void 0;
         }
+        response = {};
+        _ref = ((function() {
+          var _results;
+          _results = [];
+          for (k in data) {
+            _results.push(k);
+          }
+          return _results;
+        })()).filter(function(k) {
+          return /^[A-Z]+$/.test(k);
+        });
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          key = _ref[_i];
+          response[key] = data[key];
+        }
+        rx = /^L_([A-Z]+)(\d+)$/;
         params = (((function() {
           var _results;
           _results = [];
@@ -43,7 +59,10 @@
           return _results;
         })()).map(function(key) {
           var parts;
-          parts = /L_([A-Z]+)(\d+)/.exec(key);
+          if (!rx.test(key)) {
+            return;
+          }
+          parts = rx.exec(key);
           if (parts) {
             return [parts[1], parseInt(parts[2]), key];
           } else {
@@ -52,38 +71,41 @@
         })).filter(function(p) {
           return p != null;
         });
-        ids = (_.uniq(_.flatten((function() {
-          var _i, _len, _results;
+        ids = (function() {
+          var _j, _len1, _results;
           _results = [];
-          for (_i = 0, _len = params.length; _i < _len; _i++) {
-            p = params[_i];
+          for (_j = 0, _len1 = params.length; _j < _len1; _j++) {
+            p = params[_j];
             _results.push(p[1]);
           }
           return _results;
-        })()))).filter(function(p) {
-          return p != null;
-        });
-        return ids.map(function(id) {
-          var date, obj, param, value, _i, _len;
+        })();
+        ids = _.uniq(_.flatten(ids));
+        extractValue = function(key, value) {
+          var date;
+          if (!isNaN(value)) {
+            value = parseFloat(value);
+          }
+          if (key === 'TIMESTAMP' || /.+DATE$/.test(key)) {
+            date = new Date(value);
+            if (date && !isNaN(date.getYear())) {
+              value = date;
+            }
+          }
+          return value;
+        };
+        response["objects"] = ids.map(function(id) {
+          var obj, param, _j, _len1;
           obj = {};
-          for (_i = 0, _len = params.length; _i < _len; _i++) {
-            param = params[_i];
+          for (_j = 0, _len1 = params.length; _j < _len1; _j++) {
+            param = params[_j];
             if (id === param[1]) {
-              value = data[param[2]];
-              if (!isNaN(value)) {
-                value = parseFloat(value);
-              }
-              if (param[0] === 'TIMESTAMP' || /.+DATE/.test(param[0])) {
-                date = new Date(value);
-                if (date && !isNaN(date.getYear())) {
-                  value = date;
-                }
-              }
-              obj[param[0]] = value;
+              obj[param[0]] = extractValue(param[0], data[param[2]]);
             }
           }
           return obj;
         });
+        return response;
       };
       args = {
         USER: this.username,
