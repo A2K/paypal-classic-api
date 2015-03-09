@@ -35,6 +35,19 @@
           return typeof callback === "function" ? callback('invalid server response') : void 0;
         }
         response = {};
+        extractValue = function(key, value) {
+          var date;
+          if (!isNaN(value)) {
+            value = parseFloat(value);
+          }
+          if (key === 'TIMESTAMP' || /.+DATE$/.test(key)) {
+            date = new Date(value);
+            if (date && !isNaN(date.getYear())) {
+              value = date;
+            }
+          }
+          return value;
+        };
         _ref = ((function() {
           var _results;
           _results = [];
@@ -47,7 +60,7 @@
         });
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           key = _ref[_i];
-          response[key] = data[key];
+          response[key] = extractValue(key, data[key]);
         }
         rx = /^L_([A-Z]+)(\d+)$/;
         params = (((function() {
@@ -81,19 +94,6 @@
           return _results;
         })();
         ids = _.uniq(_.flatten(ids));
-        extractValue = function(key, value) {
-          var date;
-          if (!isNaN(value)) {
-            value = parseFloat(value);
-          }
-          if (key === 'TIMESTAMP' || /.+DATE$/.test(key)) {
-            date = new Date(value);
-            if (date && !isNaN(date.getYear())) {
-              value = date;
-            }
-          }
-          return value;
-        };
         response["objects"] = ids.map(function(id) {
           var obj, param, _j, _len1;
           obj = {};

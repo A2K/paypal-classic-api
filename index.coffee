@@ -25,8 +25,16 @@ class PayPal
 
       response = {}
 
+      extractValue = (key, value) ->
+        if not isNaN(value)
+          value = parseFloat(value)
+        if key == 'TIMESTAMP' or /.+DATE$/.test key
+          date = new Date(value)
+          value = date if date and not isNaN date.getYear()
+        return value
+
       for key in ((k for k of data).filter (k) -> /^[A-Z]+$/.test(k))
-        response[key] = data[key]
+        response[key] = extractValue(key, data[key])
 
       rx = /^L_([A-Z]+)(\d+)$/
 
@@ -39,13 +47,6 @@ class PayPal
       ids = (p[1] for p in params)
       ids = _.uniq _.flatten ids
 
-      extractValue = (key, value) ->
-        if not isNaN(value)
-          value = parseFloat(value)
-        if key == 'TIMESTAMP' or /.+DATE$/.test key
-          date = new Date(value)
-          value = date if date and not isNaN date.getYear()
-        return value
 
       response["objects"] = ids.map (id) ->
         obj = {}
