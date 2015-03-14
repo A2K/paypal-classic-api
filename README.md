@@ -24,7 +24,8 @@ PayPal = require('paypal-classic-api');
 
 var credentials = { username: 'tok261_biz_api.abc.com',
                     password: '1244612379',
-                    signature: 'lkfg9groingghb4uw5' };
+                    signature: 'lkfg9groingghb4uw5',
+                    live: false }; // false for sandbox mode, true for live mode
 
 var paypal = new PayPal(credentials);
 
